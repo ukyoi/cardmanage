@@ -17,8 +17,16 @@ void start()
 
 void getOp()
 {
-    printf("\n请输入需要的操作代号并按Enter（回车键）：");
-    scanf("%d", &op);
+    while(1) {
+        printf("\n请输入需要的操作代号并按Enter（回车键）：");
+        int valid=1;
+        if ((valid=scanf("%d", &op))==0) {
+            printf("您的输入不正确，请重新输入：");
+            continue;
+        } else {
+            return;
+        }
+    }
 }
 
 // Menu
@@ -42,8 +50,8 @@ void menu3() {
     }
 }
 
-void menu(char *path) {
-    printf("1. 用户消费\n2. 用户充值\n3. 查找用户\n4. 新增用户\n5. 修改用户资料\n6. 删除用户\n0. 退出程序\n");
+void menu(char *path, char *userFilePath) {
+    printf("1. 用户消费\n2. 用户充值\n3. 查找用户\n4. 新增用户\n5. 修改用户资料\n6. 删除用户\n7. 导出用户资料\n0. 退出程序\n");
     getOp();
     
     switch(op) {
@@ -51,7 +59,8 @@ void menu(char *path) {
             fwrite(user, sizeof(struct userInfo), MAX_USER, userFile);
             rewind(userFile);
             fclose(userFile);
-            free(path);
+            free(userFilePath);
+            userFilePath=NULL;
             exit(1);
             break;
         }
@@ -79,6 +88,14 @@ void menu(char *path) {
             deleteUser();
             break;
         }
+        case 7: {
+            exportFile(path);
+            break;
+        }
+        default: {
+            printf("未知操作，请重试：\n\n");
+            sleep(1);
+        }
     }
 }
 
@@ -87,16 +104,18 @@ void menu(char *path) {
 int main(int argc, char *argv[])
 {
     start();
-    char *path=malloc(sizeof(char)*(strlen(argv[0])+16));
-    strcpy(path, argv[0]);
+    char *path=argv[0];
     char *truncate;
-    truncate=strstr(path, "main");
+    truncate=strrchr(path, 'm');
     *truncate='\0';
-    strcat(path, "userFile");
-    printf("当前用户资料存放地址：%s\n", path);
-    checkUserFile(path);
+    char *userFilePath=malloc(sizeof(char)*(strlen(path)+16));
+    strcpy(userFilePath, path);
+    strcat(userFilePath, "userFile");
+    printf("当前用户资料存放目录：%s\n", path);
+    checkUserFile(userFilePath);
+
     while (1) {
-        menu(path);
+        menu(path, userFilePath);
     }
     return 0;
 }

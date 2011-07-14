@@ -16,12 +16,12 @@ void printNoThisUser() {
     printf("不存在该用户，请检查卡号是否无误并重试。\n");
 }
 
-void checkUserFile(char *path) { //This function will open userFile.
-    userFile=fopen(path, "rb+");
+void checkUserFile(char *userFilePath) { //This function will open userFile.
+    userFile=fopen(userFilePath, "rb+");
     if (userFile==NULL) {
-        firstUseInit(path);
+        firstUseInit(userFilePath);
     } else {
-        normalInit(path);
+        normalInit(userFilePath);
     }
 }
 
@@ -37,10 +37,10 @@ void showTitle() {
 
 void showInfo (int num)
 {
-    printf("%d\t\t%s\t\t%f\n", num, user[num].name, user[num].money);
+    printf("%d\t\t%s\t\t%.2f\n", num, user[num].name, user[num].money);
 }
 
-void firstUseInit(char *path)
+void firstUseInit(char *userFilePath)
 {
     printf("这似乎是您第一次运行该程序，程序将进行初始化……\n\n");
     int i;
@@ -49,15 +49,15 @@ void firstUseInit(char *path)
         user[i].money=0;
         strcpy(user[i].name, "\0");
     }
-    userFile=fopen(path, "wb+");
+    userFile=fopen(userFilePath, "wb+");
     writeInfo();
     printf("初始化成功。\n\n");
-    sleep(2);
+    sleep(1);
 }
 
-void normalInit(char *path)
+void normalInit(char *userFilePath)
 {
-    userFile=fopen(path, "rb+");
+    userFile=fopen(userFilePath, "rb+");
     fread(user, sizeof(struct userInfo), MAX_USER, userFile);
     rewind(userFile);
 }
@@ -96,8 +96,8 @@ void addUser()
         showTitle();
         showInfo(num);
         printf("添加成功！\n\n");
-        sleep(2);
-        break;
+        sleep(1);
+        return;
     }
 }
 
@@ -124,20 +124,20 @@ void consume()
         }
         float after=user[num].money-money;
         if (after<0) {
-            printf("余额不足，请充值后重试。\n");
-            sleep(4);
+            printf("余额不足，请充值后重试。\n\n");
+            sleep(2);
             break;
         }
         char tempOp;
-        printf("消费后余额：%f\n输入“y”确认，输入其他字符取消：", after);
+        printf("消费后余额：%.2f\n输入“y”确认，输入其他字符取消：", after);
         scanf(" %c", &tempOp);
         if (tempOp=='y') {
             user[num].money=after;
             writeInfo();
             printf("消费成功！\n\n");
-            sleep(2);
+            sleep(1);
         }
-        break;
+        return;
     }
 }
 
@@ -163,15 +163,15 @@ void charge()
         }
         float after=user[num].money+money;
         char tempOp;
-        printf("充值后余额：%f\n输入“y”确认，输入其他字符取消：", after);
+        printf("充值后余额：%.2f\n输入“y”确认，输入其他字符取消：", after);
         scanf(" %c", &tempOp);
         if (tempOp=='y') {
             user[num].money=after;
             writeInfo();
             printf("充值成功！\n\n");
-            sleep(2);
+            sleep(1);
         }
-        break;
+        return;
     }
 }
 
@@ -182,7 +182,7 @@ void searchWithNum()
     scanf("%d", &num);
     if (user[num].isFull==0) {
         printf("未找到该用户，请检查卡号是否无误并重试。");
-        sleep(4);
+        sleep(3);
     } else {
         showTitle();
         showInfo(num);
@@ -211,7 +211,7 @@ void searchWithName()
     }
     if (!ifHas) {
         printf("未找到用户。\n\n");
-        sleep(2);
+        sleep(1);
     }
 }
 
@@ -232,7 +232,7 @@ void userTraversal()
     }
     if (!ifHas) {
         printf("未找到任何用户。\n\n");
-        sleep(2);
+        sleep(1);
     }
 }
 
@@ -258,7 +258,7 @@ void deleteUser()
         }
 
         while (1) {
-            printf("用户余额为%f，请退钱。退钱完毕后输入“y”继续：", user[num].money);
+            printf("用户余额为%.2f，请退钱。退钱完毕后输入“y”继续：", user[num].money);
             scanf(" %c", &tempOp);
             if (tempOp=='y') {
                 break;
@@ -270,9 +270,9 @@ void deleteUser()
         strcpy(user[num].name, "\0");
         user[num].isFull=0;
         writeInfo();
-        printf("用户删除成功！\n\n");
-        sleep(3);
-        break;
+        printf("删除成功！\n\n");
+        sleep(1);
+        return;
     }
 }
 
@@ -323,7 +323,31 @@ void editUser()
         printf("修改完成！\n");
         showTitle();
         showInfo(newNum);
+        printf("\n\n");
         sleep(3);
-        break;
+        return;
     }
+}
+
+void exportFile(char *path)
+{
+    printf("导出中……\n");
+    char *exportFilePath=malloc(sizeof(char)*(strlen(path)+16));
+    strcpy(exportFilePath, path);
+    strcat(exportFilePath, "exportFile.txt");
+    FILE *exportFile;
+    if((exportFile=fopen(exportFilePath, "w+"))==NULL) {
+        perror("Open file error");
+        return;
+    }
+    int i;
+    for (i=0; i<MAX_USER; i++) {
+        if (user[i].isFull) {
+            fprintf(exportFile, "%d\t%s\t%.2f\n", i, user[i].name, user[i].money);
+        }
+    }
+    fclose(exportFile);
+    printf("导出完毕，文件地址：%s\n\n", exportFilePath);
+    sleep(4);
+    return;
 }

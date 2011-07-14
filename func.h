@@ -13,11 +13,11 @@ struct userInfo user[MAX_USER];
 FILE *userFile; //The lenth of the variable name should less than 17 chars.
 int op; // op: Operation
 
-void firstUseInit();
-void normalInit();
+void firstUseInit(char *userFilePath);
+void normalInit(char *userFilePath);
 void showTitle();
-void showInfo();
-void checkUserFile();
+void showInfo(int num);
+void checkUserFile(char *userFilePath);
 void showTitle();
 void showInfo(int num);
 
@@ -28,5 +28,6 @@ void searchWithName();
 void searchWithNum();
 void deleteUser();
 void editUser();
+void exportFile(char *path);
 
 #endif
