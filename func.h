@@ -28,6 +28,7 @@ void searchWithName();
 void searchWithNum();
 void deleteUser();
 void editUser();
-void exportFile(char *path);
+void exportFile(char *ieFilePath);
+void importFile(char *ieFilePath);
 
 #endif

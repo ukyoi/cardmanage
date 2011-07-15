@@ -50,52 +50,48 @@ void menu3() {
     }
 }
 
-void menu(char *path, char *userFilePath) {
-    printf("1. 用户消费\n2. 用户充值\n3. 查找用户\n4. 新增用户\n5. 修改用户资料\n6. 删除用户\n7. 导出用户资料\n0. 退出程序\n");
+void menu(char *userFilePath, char *ieFilePath) {
+    printf("1. 用户消费\n2. 用户充值\n3. 查找用户\n4. 新增用户\n5. 修改用户资料\n6. 删除用户\n7. 导出用户资料\n8. 导入用户资料\n0. 退出程序\n");
     getOp();
     
     switch(op) {
-        case 0: {
+        case 0:
             fwrite(user, sizeof(struct userInfo), MAX_USER, userFile);
             rewind(userFile);
             fclose(userFile);
             free(userFilePath);
+            free(ieFilePath);
+            ieFilePath=NULL;
             userFilePath=NULL;
             exit(1);
             break;
-        }
-        case 1: {
+        case 1:
             consume();
             break;
-        }
-        case 2: {
+        case 2:
             charge();
             break;
-        }
-        case 3: {
+        case 3:
             menu3();
             break;
-        }
-        case 4: {
+        case 4:
             addUser();
             break;
-        }
-        case 5: {
+        case 5:
             editUser();
             break;
-        }
-        case 6: {
+        case 6:
             deleteUser();
             break;
-        }
-        case 7: {
-            exportFile(path);
+        case 7:
+            exportFile(ieFilePath);
             break;
-        }
-        default: {
+        case 8:
+            importFile(ieFilePath);
+            break;
+        default:
             printf("未知操作，请重试：\n\n");
             sleep(1);
-        }
     }
 }
 
@@ -109,13 +105,18 @@ int main(int argc, char *argv[])
     truncate=strrchr(path, 'm');
     *truncate='\0';
     char *userFilePath=malloc(sizeof(char)*(strlen(path)+16));
+    char *ieFilePath=malloc(sizeof(char)*(strlen(path)+16)); // ie means import and export. 
     strcpy(userFilePath, path);
+    strcpy(ieFilePath, path);
     strcat(userFilePath, "userFile");
+    strcat(ieFilePath, "exportFile.txt");
+
     printf("当前用户资料存放目录：%s\n", path);
     checkUserFile(userFilePath);
 
+
     while (1) {
-        menu(path, userFilePath);
+        menu(userFilePath, ieFilePath);
     }
     return 0;
 }

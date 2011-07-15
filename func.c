@@ -234,6 +234,8 @@ void userTraversal()
         printf("未找到任何用户。\n\n");
         sleep(1);
     }
+    printf("\n\n");
+    sleep(1);
 }
 
 void deleteUser()
@@ -329,14 +331,11 @@ void editUser()
     }
 }
 
-void exportFile(char *path)
+void exportFile(char *ieFilePath)
 {
     printf("导出中……\n");
-    char *exportFilePath=malloc(sizeof(char)*(strlen(path)+16));
-    strcpy(exportFilePath, path);
-    strcat(exportFilePath, "exportFile.txt");
     FILE *exportFile;
-    if((exportFile=fopen(exportFilePath, "w+"))==NULL) {
+    if((exportFile=fopen(ieFilePath, "w+"))==NULL) {
         perror("Open file error");
         return;
     }
@@ -347,7 +346,40 @@ void exportFile(char *path)
         }
     }
     fclose(exportFile);
-    printf("导出完毕，文件地址：%s\n\n", exportFilePath);
+    printf("导出完毕，导出文件地址：\n%s\n\n", ieFilePath);
     sleep(4);
+    return;
+}
+
+void importFile(char *ieFilePath)
+{
+    FILE *importFile;
+    if((importFile=fopen(ieFilePath, "r"))==NULL) {
+        printf("未找到用户资料，请确认待导入资料放置于\n%s\n");
+        return;
+    }
+    printf("待导入资料存放地址：\n%s\n", ieFilePath);
+    printf("导入中……\n");
+
+    int num;
+    char tempName[MAX_NAME];
+    float tempMoney;
+
+    while((fscanf(importFile, "%d %s %f", &num, tempName, &tempMoney))!=EOF) {
+        if (user[num].isFull==1) {
+            printf("是否将 %s 的资料替换为 %s 的资料？\n输入“y”确认，输入其他字符跳过此人：", user[num].name, tempName);
+            char tempOp;
+            scanf(" %c", &tempOp);
+            if (tempOp!='y') {
+                printf("已跳过该用户。\n");
+                continue;
+            }
+        }
+        user[num].isFull=1;
+        strcpy(user[num].name, tempName);
+        user[num].money=tempMoney;
+    }
+    printf("导入完毕！\n\n");
+    sleep(1);
     return;
 }
